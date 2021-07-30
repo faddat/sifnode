@@ -118,7 +118,6 @@ func (k Querier) GetLiquidityProviderList(c context.Context, req *types.Liquidit
 	liquidityProviders := make([]*types.LiquidityProvider, len(lpList))
 
 	for i, lp := range lpList {
-		lp := lp
 		liquidityProviders[i] = &lp
 	}
 

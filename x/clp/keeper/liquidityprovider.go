@@ -77,32 +77,67 @@ func (k Keeper) DestroyLiquidityProvider(ctx sdk.Context, symbol string, lpAddre
 
 func (k Keeper) GetLiquidityProvidersForAsset(ctx sdk.Context, asset types.Asset) []types.LiquidityProvider {
 	var lpList []types.LiquidityProvider
+	logger := k.Logger(ctx).With("func", "GetLiquidityProvidersForAsset")
+
 	iterator := k.GetLiquidityProviderIterator(ctx)
 	defer iterator.Close()
+
 	for ; iterator.Valid(); iterator.Next() {
 		var lp types.LiquidityProvider
+
 		bytesValue := iterator.Value()
+
+		if len(bytesValue) <= 0 {
+			logger.Info("cannot unmarshall empty liquidity provider for key %s", iterator.Key())
+			continue
+		}
+
 		k.cdc.MustUnmarshalBinaryBare(bytesValue, &lp)
+
+		if lp.Asset == nil {
+			logger.Info("skipping liquidity provider as asset is nil for key %s", iterator.Key())
+		}
+
 		if lp.Asset.Equals(asset) {
 			lpList = append(lpList, lp)
 		}
 	}
+
+	logger.Info("returning liquidity provider for asset %s with %d results", asset.Symbol, len(lpList))
+
 	return lpList
 }
 
 func (k Keeper) GetLiquidityProvidersForAssetPaginated(ctx sdk.Context, asset types.Asset, pagination *query.PageRequest) ([]types.LiquidityProvider, *query.PageResponse, error) {
 	var lpList []types.LiquidityProvider
+	logger := k.Logger(ctx).With("func", "GetLiquidityProvidersForAssetPaginated")
+
 	store := ctx.KVStore(k.storeKey)
 	lpStore := prefix.NewStore(store, types.LiquidityProviderPrefix)
+
 	pageRes, err := query.FilteredPaginate(lpStore, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		var lp types.LiquidityProvider
+		logger.Info("attempting to load liquidity provider for %s", key)
+
+		if len(value) <= 0 {
+			logger.Info("cannot unmarshall empty liquidity provider for key %s", key)
+			return false, nil
+		}
+
 		err := k.cdc.UnmarshalBinaryBare(value, &lp)
 		if err != nil {
 			return false, err
 		}
+
+		if lp.Asset == nil {
+			logger.Info("skipping liquidity provider as asset is nil for key %s", key)
+			return false, nil
+		}
+
 		if !lp.Asset.Equals(asset) {
 			return false, nil
 		}
+
 		if accumulate {
 			lpList = append(lpList, lp)
 		}
@@ -112,6 +147,9 @@ func (k Keeper) GetLiquidityProvidersForAssetPaginated(ctx sdk.Context, asset ty
 	if err != nil {
 		return nil, &query.PageResponse{}, status.Error(codes.Internal, err.Error())
 	}
+
+	logger.Info("returning liquidity provider for asset %s with %d results", asset.Symbol, pageRes.Total)
+
 	return lpList, pageRes, nil
 }
 
