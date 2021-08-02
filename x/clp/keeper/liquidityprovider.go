@@ -2,6 +2,9 @@ package keeper
 
 import (
 	"github.com/Sifchain/sifnode/x/clp/types"
+
+	"fmt"
+
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
@@ -88,14 +91,14 @@ func (k Keeper) GetLiquidityProvidersForAsset(ctx sdk.Context, asset types.Asset
 		bytesValue := iterator.Value()
 
 		if len(bytesValue) <= 0 {
-			logger.Info("cannot unmarshall empty liquidity provider for key %s", iterator.Key())
+			logger.Info(fmt.Sprintf("cannot unmarshall empty liquidity provider for key %s", iterator.Key()))
 			continue
 		}
 
 		k.cdc.MustUnmarshalBinaryBare(bytesValue, &lp)
 
 		if lp.Asset == nil {
-			logger.Info("skipping liquidity provider as asset is nil for key %s", iterator.Key())
+			logger.Info(fmt.Sprintf("skipping liquidity provider as asset is nil for key %s", iterator.Key()))
 		}
 
 		if lp.Asset.Equals(asset) {
@@ -103,7 +106,7 @@ func (k Keeper) GetLiquidityProvidersForAsset(ctx sdk.Context, asset types.Asset
 		}
 	}
 
-	logger.Info("returning liquidity provider for asset %s with %d results", asset.Symbol, len(lpList))
+	logger.Info(fmt.Sprintf("returning liquidity provider for asset %s with %d results", asset.Symbol, len(lpList)))
 
 	return lpList
 }
@@ -117,10 +120,10 @@ func (k Keeper) GetLiquidityProvidersForAssetPaginated(ctx sdk.Context, asset ty
 
 	pageRes, err := query.FilteredPaginate(lpStore, pagination, func(key []byte, value []byte, accumulate bool) (bool, error) {
 		var lp types.LiquidityProvider
-		logger.Info("attempting to load liquidity provider for %s", key)
+		logger.Info(fmt.Sprintf("attempting to load liquidity provider for %s", key))
 
 		if len(value) <= 0 {
-			logger.Info("cannot unmarshall empty liquidity provider for key %s", key)
+			logger.Info(fmt.Sprintf("cannot unmarshall empty liquidity provider for key %s", key))
 			return false, nil
 		}
 
@@ -130,7 +133,7 @@ func (k Keeper) GetLiquidityProvidersForAssetPaginated(ctx sdk.Context, asset ty
 		}
 
 		if lp.Asset == nil {
-			logger.Info("skipping liquidity provider as asset is nil for key %s", key)
+			logger.Info(fmt.Sprintf("skipping liquidity provider as asset is nil for key %s", key))
 			return false, nil
 		}
 
@@ -148,7 +151,7 @@ func (k Keeper) GetLiquidityProvidersForAssetPaginated(ctx sdk.Context, asset ty
 		return nil, &query.PageResponse{}, status.Error(codes.Internal, err.Error())
 	}
 
-	logger.Info("returning liquidity provider for asset %s with %d results", asset.Symbol, pageRes.Total)
+	logger.Info(fmt.Sprintf("returning liquidity provider for asset %s with %d results", asset.Symbol, pageRes.Total))
 
 	return lpList, pageRes, nil
 }
