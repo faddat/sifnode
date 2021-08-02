@@ -78,36 +78,25 @@ func (k Keeper) DestroyLiquidityProvider(ctx sdk.Context, symbol string, lpAddre
 	store.Delete(key)
 }
 
-func (k Keeper) GetLiquidityProvidersForAsset(ctx sdk.Context, asset types.Asset) []types.LiquidityProvider {
-	var lpList []types.LiquidityProvider
-	logger := k.Logger(ctx).With("func", "GetLiquidityProvidersForAsset")
-
+func (k Keeper) GetLiquidityProvidersForAsset(ctx sdk.Context, asset types.Asset) []*types.LiquidityProvider {
+	var lpList []*types.LiquidityProvider
 	iterator := k.GetLiquidityProviderIterator(ctx)
 	defer iterator.Close()
-
 	for ; iterator.Valid(); iterator.Next() {
 		var lp types.LiquidityProvider
-
 		bytesValue := iterator.Value()
-
-		if len(bytesValue) <= 0 {
-			logger.Info(fmt.Sprintf("cannot unmarshall empty liquidity provider for key %s", iterator.Key()))
-			continue
+		if !(len(bytesValue) > 0) {
+			panic("GetLiquidityProvidersForAsset ==>> len(bytesValue) <= 0")
 		}
-
 		k.cdc.MustUnmarshalBinaryBare(bytesValue, &lp)
-
 		if lp.Asset == nil {
-			logger.Info(fmt.Sprintf("skipping liquidity provider as asset is nil for key %s", iterator.Key()))
+			panic(fmt.Sprintf("GetLiquidityProvidersForAsset ==>> lp.Asset == nil, len(bytesValue): %d", len(bytesValue)))
 		}
-
 		if lp.Asset.Equals(asset) {
-			lpList = append(lpList, lp)
+			lpList = append(lpList, &lp)
 		}
 	}
-
-	logger.Info(fmt.Sprintf("returning liquidity provider for asset %s with %d results", asset.Symbol, len(lpList)))
-
+	fmt.Println("GetLiquidityProvidersForAsset ==>> len(lplist): ", len(lpList))
 	return lpList
 }
 
