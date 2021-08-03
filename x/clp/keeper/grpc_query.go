@@ -110,7 +110,7 @@ func (k Querier) GetLiquidityProviderList(c context.Context, req *types.Liquidit
 	}
 	ctx := sdk.UnwrapSDKContext(c)
 	searchingAsset := types.NewAsset(req.Symbol)
-	lpList, pageRes, err := k.GetLiquidityProvidersForAssetPaginated(ctx, searchingAsset, req.Pagination)
+	lpList, pageRes, err := k.Keeper.GetLiquidityProvidersForAssetPaginated(ctx, searchingAsset, req.Pagination)
 	if err != nil {
 		return nil, err
 	}

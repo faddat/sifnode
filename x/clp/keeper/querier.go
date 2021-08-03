@@ -113,7 +113,14 @@ func queryAssetList(ctx sdk.Context, path []string, req abci.RequestQuery, keepe
 }
 
 func queryLPList(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino, querier Querier) ([]byte, error) {
-	res, err := querier.GetLiquidityProviderList(sdk.WrapSDKContext(ctx), &types.LiquidityProviderListReq{})
+	var params types.LiquidityProviderListReq
+
+	err := legacyQuerierCdc.UnmarshalJSON(req.Data, &params)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrJSONUnmarshal, err.Error())
+	}
+
+	res, err := querier.GetLiquidityProviderList(sdk.WrapSDKContext(ctx), &params)
 	if err != nil {
 		return nil, err
 	}
