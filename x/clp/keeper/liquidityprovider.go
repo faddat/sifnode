@@ -85,23 +85,16 @@ func (k Keeper) GetLiquidityProvidersForAsset(ctx sdk.Context, asset types.Asset
 	for ; iterator.Valid(); iterator.Next() {
 		var lp types.LiquidityProvider
 		bytesValue := iterator.Value()
-		if len(bytesValue) <= 0 {
-			fmt.Println("GetLiquidityProvidersForAsset ==>> ERROR len(bytesValue) <= 0 key: ", iterator.Key(), " asset: ", asset.Symbol)
-		}
 		k.cdc.MustUnmarshalBinaryBare(bytesValue, &lp)
-		if lp.Asset == nil {
-			fmt.Println("GetLiquidityProvidersForAsset ==>> ERROR lp.Asset == nil, len(bytesValue): ", len(bytesValue), " key: ", iterator.Key(), " asset: ", asset.Symbol)
-		}
 		if lp.Asset.Equals(asset) {
 			lpList = append(lpList, &lp)
 		}
 	}
-	fmt.Println("GetLiquidityProvidersForAsset ==>> len(lplist): ", len(lpList), " key: ", iterator.Key(), " asset: ", asset.Symbol)
 	return lpList
 }
 
-func (k Keeper) GetLiquidityProvidersForAssetPaginated(ctx sdk.Context, asset types.Asset, pagination *query.PageRequest) ([]types.LiquidityProvider, *query.PageResponse, error) {
-	var lpList []types.LiquidityProvider
+func (k Keeper) GetLiquidityProvidersForAssetPaginated(ctx sdk.Context, asset types.Asset, pagination *query.PageRequest) ([]*types.LiquidityProvider, *query.PageResponse, error) {
+	var lpList []*types.LiquidityProvider
 	logger := k.Logger(ctx).With("func", "GetLiquidityProvidersForAssetPaginated")
 
 	store := ctx.KVStore(k.storeKey)
@@ -131,7 +124,7 @@ func (k Keeper) GetLiquidityProvidersForAssetPaginated(ctx sdk.Context, asset ty
 		}
 
 		if accumulate {
-			lpList = append(lpList, lp)
+			lpList = append(lpList, &lp)
 		}
 
 		return true, nil

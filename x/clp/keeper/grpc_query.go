@@ -108,15 +108,16 @@ func (k Querier) GetLiquidityProviderList(c context.Context, req *types.Liquidit
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "empty request")
 	}
-
 	ctx := sdk.UnwrapSDKContext(c)
-
 	searchingAsset := types.NewAsset(req.Symbol)
-	lpList := k.GetLiquidityProvidersForAsset(ctx, searchingAsset)
-
+	lpList, pageRes, err := k.GetLiquidityProvidersForAssetPaginated(ctx, searchingAsset, req.Pagination)
+	if err != nil {
+		return nil, err
+	}
 	return &types.LiquidityProviderListRes{
 		LiquidityProviders: lpList,
 		Height:             ctx.BlockHeight(),
+		Pagination:         pageRes,
 	}, nil
 }
 
