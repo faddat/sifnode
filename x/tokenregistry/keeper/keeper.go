@@ -114,15 +114,21 @@ func (k keeper) SetDenomWhitelist(ctx sdk.Context, wl types.Registry) {
 }
 
 func (k keeper) GetDenomWhitelist(ctx sdk.Context) types.Registry {
-	var whitelist types.Registry
-	store := ctx.KVStore(k.storeKey)
-	bz := store.Get(types.WhitelistStorePrefix)
 
-	if len(bz) == 0 {
-		return types.Registry{}
-	}
+	return types.DefaultRegistry()
 
-	k.cdc.MustUnmarshalBinaryBare(bz, &whitelist)
+	/*
+		var whitelist types.Registry
+		store := ctx.KVStore(k.storeKey)
+		bz := store.Get(types.WhitelistStorePrefix)
 
-	return whitelist
+		if len(bz) == 0 {
+			ctx.Logger().Info("whitelist is empty on get", "module", "tokenregistry")
+			return types.Registry{}
+		}
+
+		k.cdc.MustUnmarshalBinaryBare(bz, &whitelist)
+
+		return whitelist
+	*/
 }

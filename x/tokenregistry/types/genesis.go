@@ -33,6 +33,9 @@ func GetGenesisStateFromAppState(marshaler codec.JSONMarshaler, appState map[str
 func DefaultRegistry() Registry {
 	return Registry{
 		Entries: []*RegistryEntry{
+			{IsWhitelisted: true, Denom: "ibc/896F0081794734A2DBDF219B7575C569698F872619C43D18CC63C03CFB997257", BaseDenom: "atom", SrcChannel: "channel-0", DestChannel: "channel-86", Path: "transfer/channel-0", DisplayName: "ATOM", ExternalSymbol: "ATOM", Decimals: 18},
+			{IsWhitelisted: true, Denom: "ibc/48E40290A494F271890BCFC867EB0940D8A6205DD94750C8EA71750480D65BA9", BaseDenom: "akt", SrcChannel: "channel-1", DestChannel: "channel-12", Path: "transfer/channel-1", DisplayName: "AKT", ExternalSymbol: "AKT", Decimals: 18},
+			{IsWhitelisted: true, Denom: "ibc/0F3C9D893A0ADE5738E473BB1A15C44D9715568E0C005D33A02495B444E15225", BaseDenom: "ncat", SrcChannel: "channel-2", DestChannel: "channel-12", Path: "transfer/channel-2", DisplayName: "AKT", ExternalSymbol: "AKT", Decimals: 18},
 			{IsWhitelisted: true, Denom: "rowan", Decimals: 18},
 			{IsWhitelisted: true, Denom: "ccel", Decimals: 4},
 			{IsWhitelisted: true, Denom: "causc", Decimals: 6},
